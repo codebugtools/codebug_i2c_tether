@@ -2,18 +2,22 @@ import os
 import time
 import serial
 import struct
-import codebug_i2c
+import codebug_i2c_tether.char_map
+import codebug_i2c_tether.codebug_i2c
 
 
-I2C_BUS = 1
-I2C_ADDRESS = 0x18
+DEFAULT_I2C_BUS = 1
+DEFAULT_I2C_ADDRESS = 0x18
+
 NUM_CHANNELS = 7
 OUTPUT_CHANNEL_INDEX = INPUT_CHANNEL_INDEX = 5
 IO_DIRECTION_CHANNEL = 6
 
 
+class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
 
-class CodeBug(codebug_i2c.CodeBugI2CMaster):
+    def __init__(self, bus=DEFAULT_I2C_BUS, address=DEFAULT_I2C_ADDRESS):
+        super().__init__(bus, address)
 
     def _int_input_index(self, input_index):
         """Returns an integer input index."""
@@ -56,7 +60,7 @@ class CodeBug(codebug_i2c.CodeBugI2CMaster):
         if state:
             io_state |= 1 << output_index
         else:
-            io_state &= 0xff ^ (1 <<= output_index)
+            io_state &= 0xff ^ (1 << output_index)
         self.set(OUTPUT_CHANNEL_INDEX, io_state)
 
     def clear(self):
@@ -97,13 +101,13 @@ class CodeBug(codebug_i2c.CodeBugI2CMaster):
         """
         # TODO add and_mask into set packet
         for row in range(5):
-            row_state = self.get_row()
+            row_state = self.get_row(row)
             state = (val >> (4 - row)) & 0x1  # state of column: 1 or 0
             if state:
                 row_state |= 1 << (4 - col)
             else:
                 row_state &= 0xff ^ (1 << (4 - col))
-            self.set_row(row_state)
+            self.set_row(row, row_state)
 
     def get_col(self, col):
         """Returns an entire column of LEDs on CodeBug.
@@ -130,7 +134,7 @@ class CodeBug(codebug_i2c.CodeBugI2CMaster):
             row_state |= 1 << (4 - x)
         else:
             row_state &= 0xff ^ (1 << (4 - x))
-        self.set_row(row_state)
+        self.set_row(y, row_state)
 
     def get_pixel(self, x, y):
         """Returns the state of an LED on CodeBug.
@@ -149,7 +153,7 @@ class CodeBug(codebug_i2c.CodeBugI2CMaster):
             >>> codebug.write_text(0, 0, 'Hello, CodeBug!')
 
         """
-        s = StringSprite(message, direction)
+        s = char_map.StringSprite(message, direction)
         self.clear()
         for row_i, row in enumerate(s.pixel_state):
             if (row_i - y) >= 0 and (row_i - y) <= 4:
