@@ -1,7 +1,3 @@
-import os
-import time
-import serial
-import struct
 import codebug_i2c_tether.char_map
 import codebug_i2c_tether.codebug_i2c
 
@@ -30,8 +26,9 @@ class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
         """Returns the state of an input. You can use 'A' and 'B' to
         access buttons A and B.
 
-            >>> codebug = CodeBug()
-            >>> codebug.get_input('A')  # switch A is unpressed
+            >>> with CodeBug() as codebug:
+            ...     codebug.get_input('A')  # switch A is unpressed
+            ...
             0
             >>> codebug.get_input(0)  # assuming pad 0 is connected to GND
             1
@@ -66,18 +63,19 @@ class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
     def clear(self):
         """Clears the LED's on CodeBug.
 
-            >>> codebug = CodeBug()
-            >>> codebug.clear()
+            >>> with CodeBug() as codebug:
+            ...     codebug.clear()
+            ...
 
         """
-        for row in range(5):
-            self.set_row(row, 0)
+        self.set_bulk(0, (0,)*5)
 
     def set_row(self, row, val):
         """Sets a row of LEDs on CodeBug.
 
-            >>> codebug = CodeBug()
-            >>> codebug.set_row(0, 0b10101)
+            >>> with CodeBug() as codebug:
+            ...     codebug.set_row(0, 0b10101)
+            ...
 
         """
         self.set(row, val)
@@ -85,8 +83,9 @@ class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
     def get_row(self, row):
         """Returns a row of LEDs on CodeBug.
 
-            >>> codebug = CodeBug()
-            >>> codebug.get_row(0)
+            >>> with CodeBug() as codebug:
+            ...     codebug.get_row(0)
+            ...
             21
 
         """
@@ -95,38 +94,46 @@ class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
     def set_col(self, col, val):
         """Sets an entire column of LEDs on CodeBug.
 
-            >>> codebug = CodeBug()
-            >>> codebug.set_col(0, 0b10101)
+            >>> with CodeBug() as codebug:
+            ...     codebug.set_col(0, 0b10101)
+            ...
 
         """
         # TODO add and_mask into set packet
+        rows = []
+        row_bytes = self.get_bulk(0, 5)
         for row in range(5):
-            row_state = self.get_row(row)
+            row_state = row_bytes[row]
             state = (val >> (4 - row)) & 0x1  # state of column: 1 or 0
             if state:
                 row_state |= 1 << (4 - col)
             else:
                 row_state &= 0xff ^ (1 << (4 - col))
-            self.set_row(row, row_state)
+            rows.append(row_state)
+        self.set_bulk(0, rows)
 
     def get_col(self, col):
         """Returns an entire column of LEDs on CodeBug.
 
-            >>> codebug = CodeBug()
-            >>> codebug.get_col(0)
+            >>> with CodeBug() as codebug:
+            ...     codebug.get_col(0)
+            ...
             21
 
         """
+        row_bytes = self.get_bulk(0, 5)
         c = 0
         for row_index in range(5):
-            c |= (self.get_row(row_index) >> (4 - col)) << (4 - row_index)
+            col_state = 0x1 & row_bytes[row_index] >> (4 - col)
+            c |= col_state << (4 - row_index)
         return c
 
     def set_pixel(self, x, y, state):
         """Sets a pixel on CodeBug.
 
-            >>> codebug = CodeBug()
-            >>> codebug.set_pixel(0, 0, 1)
+            >>> with CodeBug() as codebug:
+            ...     codebug.set_pixel(0, 0, 1)
+            ...
 
         """
         row_state = self.get_row(y)
@@ -139,8 +146,9 @@ class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
     def get_pixel(self, x, y):
         """Returns the state of an LED on CodeBug.
 
-            >>> codebug = CodeBug()
-            >>> codebug.get_pixel(0, 0)
+            >>> with CodeBug() as codebug:
+            ...     codebug.get_pixel(0, 0)
+            ...
             1
 
         """
@@ -149,11 +157,12 @@ class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
     def write_text(self, x, y, message, direction="right"):
         """Writes some text on CodeBug at LED (x, y).
 
-            >>> codebug = CodeBug()
-            >>> codebug.write_text(0, 0, 'Hello, CodeBug!')
+            >>> with CodeBug() as codebug:
+            ...     codebug.write_text(0, 0, 'Hello, CodeBug!')
+            ...
 
         """
-        s = char_map.StringSprite(message, direction)
+        s = codebug_i2c_tether.char_map.StringSprite(message, direction)
         self.clear()
         for row_i, row in enumerate(s.pixel_state):
             if (row_i - y) >= 0 and (row_i - y) <= 4:
