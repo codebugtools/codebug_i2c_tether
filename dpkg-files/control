@@ -1,0 +1,20 @@
+Source: codebug-i2c-tether
+Maintainer: Thomas Preston <thomas.preston@openlx.org.uk>
+Section: python
+Priority: optional
+Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7),
+               python3, python3-setuptools
+Standards-Version: 3.9.1
+X-Python3-Version: >= 3.2
+
+Package: python-codebug-i2c-tether
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: CodeBug I2C Tether module.
+ Python module for interacting with CodeBug tethered over I2C.
+
+Package: python3-codebug-i2c-tether
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: CodeBug I2C Tether module.
+ Python 3 module for interacting with CodeBug tethered over I2C.
