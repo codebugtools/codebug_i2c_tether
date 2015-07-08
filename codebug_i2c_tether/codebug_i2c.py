@@ -1,4 +1,4 @@
-from microstackcommon.i2c import I2CMaster, writing_bytes, writing, reading
+from .i2c import I2CMaster, writing_bytes, writing, reading
 
 
 STATUS_OKAY = 0

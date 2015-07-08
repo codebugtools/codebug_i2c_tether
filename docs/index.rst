@@ -6,11 +6,11 @@
 Welcome to CodeBug I2C Tether's documentation!
 ==============================================
 
-The codebug_i2c_tether Python module provides functions and classes for
+The `codebug_i2c_tether` Python module provides functions and classes for
 interacting with CodeBug when tethered over I2C.
 
 Links:
-    - `CodeBug Website <http://www.codebug.com/>`_
+    - `CodeBug Website <http://www.codebug.org.uk/>`_
     - `GitHub <https://github.com/codebugtools/>`_
 
 Contents:
@@ -20,7 +20,6 @@ Contents:
 
    installation
    example
-   reference
 
 
 Indices and tables
