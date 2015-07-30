@@ -51,14 +51,22 @@ class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
     #     self.set(PULLUP_CHANNEL_INDEX, state << input_index, or_mask=True)
 
     def set_output(self, output_index, state):
-        """Sets the output index to state (CodeBug only have outputs 1 and 3)
-        """
-        io_state = self.get(OUTPUT_CHANNEL_INDEX)[0]
+        """Sets the output at index to state."""
+        output_state = self.get(OUTPUT_CHANNEL_INDEX)[0]
         if state:
-            io_state |= 1 << output_index
+            output_state |= 1 << output_index
         else:
-            io_state &= 0xff ^ (1 << output_index)
-        self.set(OUTPUT_CHANNEL_INDEX, io_state)
+            output_state &= 0xff ^ (1 << output_index)
+        self.set(OUTPUT_CHANNEL_INDEX, output_state)
+
+    def set_leg_io(self, leg_index, direction):
+        """Sets the I/O direction of the leg at index."""
+        io_state = self.get(IO_DIRECTION_CHANNEL)[0]
+        if direction:
+            io_state |= 1 << leg_index
+        else:
+            io_state &= 0xff ^ (1 << leg_index)
+        self.set(IO_DIRECTION_CHANNEL, io_state)
 
     def clear(self):
         """Clears the LED's on CodeBug.
