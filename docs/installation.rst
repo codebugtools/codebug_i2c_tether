@@ -15,9 +15,36 @@ You can use the ``codebug_i2c_tether`` Python 3 API by either:
 Setting up CodeBug
 ------------------
 In order to communicate with CodeBug over I2C you need to program CodeBug with
-``codebug_i2c_tether.cbg``. To do this, plug in CodeBug via USB --- it
-should appear as a USB drive --- then copy onto it the
-``codebug_i2c_tether.cbg`` file. CodeBug is now ready to be used via I2C.
+``codebug_i2c_tether.cbg`` (you can find this in the ``firmware/`` directory
+of this project). To do this, plug in CodeBug via USB --- it should appear
+as a USB drive --- then copy onto it the ``codebug_i2c_tether.cbg`` file.
+CodeBug is now ready to be used via I2C.
+
+Unplug CodeBug, remove the battery (if one) and then plug CodeBug's extension
+header into the I2C GPIO pins on the Raspberry Pi. These are the left-most
+inner row GPIO pins on the Raspberry Pi with CodeBug facing in.
+
+Here is a diagram of this configuration::
+
+    +-------------------------------------------------------+
+    | oooooooooooooooooooooooooooooooooooooooo <- GPIO pins |
+    | XXXXXXoooooooooooooooooooooooooooooooooo              |
+    |    ^                                                  |
+    |    |                                                  |
+    | CodeBug                                               |
+    |                                                       |
+    |                                                       |
+    |                             RPi                       |
+    |                                                       |
+    |                                                       |
+    |                                                       |
+    +-------------------------------------------------------+
+
+And here is a picture of the same thing:
+
+.. image:: codebug_i2c_tether_rpi_pins.jpg
+   :alt: Image showing the back of CodeBug plugged into the correct GPIO pins on a Raspberry Pi 2.
+   :align: center
 
 
 Setting up Raspberry Pi
