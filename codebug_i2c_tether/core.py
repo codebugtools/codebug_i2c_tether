@@ -61,12 +61,9 @@ class CodeBug(codebug_i2c_tether.codebug_i2c.CodeBugI2CMaster):
 
     def set_leg_io(self, leg_index, direction):
         """Sets the I/O direction of the leg at index."""
-        io_state = self.get(IO_DIRECTION_CHANNEL)[0]
-        if direction:
-            io_state |= 1 << leg_index
-        else:
-            io_state &= 0xff ^ (1 << leg_index)
-        self.set(IO_DIRECTION_CHANNEL, io_state)
+        # io_config_state = leg_index in upper nibble and state in lower nibble
+        io_config_state = ((leg_index << 4) & 0xf0) | (direction & 0x0f)
+        self.set(IO_DIRECTION_CHANNEL, io_config_state)
 
     def clear(self):
         """Clears the LED's on CodeBug.
