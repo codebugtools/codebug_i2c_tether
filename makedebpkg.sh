@@ -10,4 +10,4 @@ cp {../../dpkg-files,debian}/rules
 cp {../../dpkg-files,debian}/python-codebug-i2c-tether.install
 cp {../../dpkg-files,debian}/python3-codebug-i2c-tether.install
 
-dpkg-buildpackage -us -uc
+dpkg-buildpackage
