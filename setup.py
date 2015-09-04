@@ -1,6 +1,4 @@
 import sys
-import errno
-import subprocess
 from distutils.core import setup
 
 
