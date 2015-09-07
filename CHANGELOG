@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+v0.2.3
+------
+- Seperated input/output channel indexes to fix input bug. This includes an
+  update to the firmware.
+
 v0.2.2
 ------
 - Minor changes to `set_leg_io` doc string.
