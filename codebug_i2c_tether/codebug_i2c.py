@@ -1,3 +1,4 @@
+import struct
 from .i2c import I2CMaster, writing_bytes, writing, reading
 
 
@@ -64,3 +65,24 @@ class CodeBugI2CMaster(I2CMaster):
                   len(values))
         packet += tuple(values)
         self.transaction(writing_bytes(*packet))
+
+    def and_mask(self, address, mask):
+        """Logical AND the address with mask."""
+        value = struct.unpack('B', self.get(address))[0]
+        self.set(address, value & mask)
+
+    def or_mask(self, address, mask):
+        """Logical OR the address with mask."""
+        value = struct.unpack('B', self.get(address))[0]
+        self.set(address, value | mask)
+
+    def set_bit(self, address, bit_index, state):
+        """Sets a bit at address to state."""
+        if state:
+            self.or_mask(address, 1 << bit_index)
+        else:
+            self.and_mask(address, 0xff ^ (1 << bit_index))
+
+    def get_bit(self, address, bit_index):
+        """Returns a bit from an address."""
+        return (self.get(address) >> bit_index) & 0x1
