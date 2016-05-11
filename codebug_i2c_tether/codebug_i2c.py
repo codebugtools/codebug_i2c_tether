@@ -85,4 +85,5 @@ class CodeBugI2CMaster(I2CMaster):
 
     def get_bit(self, address, bit_index):
         """Returns a bit from an address."""
-        return (self.get(address) >> bit_index) & 0x1
+        value = struct.unpack('B', self.get(address))[0]
+        return (value >> bit_index) & 0x1

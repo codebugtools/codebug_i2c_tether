@@ -1,10 +1,8 @@
 import time
+import struct
 import unittest
 import codebug_i2c_tether
-
-
-I2C_BUS = 1
-I2C_ADDRESS = 0x18
+from codebug_tether.sprites import (Sprite, StringSprite)
 
 
 class TestCodeBugI2CTether(unittest.TestCase):
@@ -68,12 +66,72 @@ class TestCodeBugI2CTether(unittest.TestCase):
             for x in range(5):
                 self.assertEqual(codebug.get_col(x), 0)
 
-    def test_write_text(self):
+    def test_draw_sprite(self):
         with codebug_i2c_tether.CodeBug() as codebug:
-            message = 'Hello, CodeBug!'
-            for i in range(len(message) * 6):
-                time.sleep(0.05)
-                codebug.write_text(-i, 0, message)
+            codebug.clear()
+
+            def fill_sprite(s):
+                for x in range(s.width):
+                    for y in range(s.height):
+                        s.set_pixel(x, y, 1)
+
+            sprite = Sprite(4, 4)
+            fill_sprite(sprite)
+
+            codebug.draw_sprite(0, 0, sprite)
+            self.assertEqual(codebug.get_row(4), 0x00)
+            self.assertEqual(codebug.get_row(3), 0x1E)
+            self.assertEqual(codebug.get_row(2), 0x1E)
+            self.assertEqual(codebug.get_row(1), 0x1E)
+            self.assertEqual(codebug.get_row(0), 0x1E)
+
+            codebug.draw_sprite(1, 1, sprite)
+            self.assertEqual(codebug.get_row(4), 0x0F)
+            self.assertEqual(codebug.get_row(3), 0x0F)
+            self.assertEqual(codebug.get_row(2), 0x0F)
+            self.assertEqual(codebug.get_row(1), 0x0F)
+            self.assertEqual(codebug.get_row(0), 0x00)
+
+            sprite = Sprite(2, 3)
+            fill_sprite(sprite)
+            codebug.draw_sprite(0, 0, sprite)
+            self.assertEqual(codebug.get_row(4), 0x00)
+            self.assertEqual(codebug.get_row(3), 0x00)
+            self.assertEqual(codebug.get_row(2), 0x18)
+            self.assertEqual(codebug.get_row(1), 0x18)
+            self.assertEqual(codebug.get_row(0), 0x18)
+
+            sprite = Sprite(3, 3)
+            fill_sprite(sprite)
+            sprite.set_pixel(1, 2, 0) # key the sprite
+
+            codebug.draw_sprite(0, 0, sprite)
+            self.assertEqual(codebug.get_row(4), 0x00)
+            self.assertEqual(codebug.get_row(3), 0x00)
+            self.assertEqual(codebug.get_row(2), 0x14)
+            self.assertEqual(codebug.get_row(1), 0x1C)
+            self.assertEqual(codebug.get_row(0), 0x1C)
+
+            codebug.draw_sprite(2, 2, sprite)
+            self.assertEqual(codebug.get_row(4), 0x05)
+            self.assertEqual(codebug.get_row(3), 0x07)
+            self.assertEqual(codebug.get_row(2), 0x07)
+            self.assertEqual(codebug.get_row(1), 0x00)
+            self.assertEqual(codebug.get_row(0), 0x00)
+
+            hello_str = StringSprite('Hello!')
+            codebug.draw_sprite(0, 0, hello_str)
+            self.assertEqual(codebug.get_row(4), 0x12)
+            self.assertEqual(codebug.get_row(3), 0x12)
+            self.assertEqual(codebug.get_row(2), 0x1E)
+            self.assertEqual(codebug.get_row(1), 0x12)
+            self.assertEqual(codebug.get_row(0), 0x12)
+            codebug.draw_sprite(-7, 0, hello_str)
+            self.assertEqual(codebug.get_row(4), 0x03)
+            self.assertEqual(codebug.get_row(3), 0x11)
+            self.assertEqual(codebug.get_row(2), 0x19)
+            self.assertEqual(codebug.get_row(1), 0x01)
+            self.assertEqual(codebug.get_row(0), 0x1B)
 
 
 if __name__ == "__main__":
