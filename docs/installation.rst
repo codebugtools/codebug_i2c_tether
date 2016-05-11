@@ -1,28 +1,25 @@
 ############
 Installation
 ############
-These instructions assume you're controlling CodeBug over I2C on a
-Raspberry Pi. If you're using another type of machine then it is assumed
-you know what you're doing and can set up I2C.
-
-You can use the ``codebug_i2c_tether`` Python 3 API by either:
-
-* Installing with ``apt-get``
-* Installing with ``pip``
-* Copying the ``codebug_i2c_tether`` module into your project directory.
-
 
 Setting up CodeBug
-------------------
-In order to communicate with CodeBug over I2C you need to program CodeBug with
-``codebug_i2c_tether.cbg`` (you can find this in the ``firmware/`` directory
-of this project). To do this, plug in CodeBug via USB --- it should appear
-as a USB drive --- then copy onto it the ``codebug_i2c_tether.cbg`` file.
-CodeBug is now ready to be used via I2C.
+==================
+In order to use CodeBug with codebug_i2c_tether you need to program CodeBug
+with ``codebug_i2c_tether.cbg`` (|firmwaredownload|).
 
-Unplug CodeBug, remove the battery (if one) and then plug CodeBug's extension
-header into the I2C GPIO pins on the Raspberry Pi. These are the left-most
-inner row GPIO pins on the Raspberry Pi with CodeBug facing in.
+To do this, hold down button A and plug in CodeBug via USB --- it should
+appear as a USB drive --- then copy the ``codebug_i2c_tether.cbg`` file onto it.
+CodeBug is now ready to be used via serial USB. Press button B to exit
+programming mode.
+
+.. note:: When CodeBug is connected to a computer via USB is should now
+          appear as a serial device. To reprogram CodeBug: hold down
+          button A and (re)plug it into a USB port.
+
+Unplug CodeBug, remove the battery (if one is inserted) and then plug
+CodeBug's extension header into the I2C GPIO pins on the Raspberry Pi.
+These are the left-most inner row GPIO pins on the Raspberry Pi with
+CodeBug facing in.
 
 Here is a diagram of this configuration::
 
@@ -47,8 +44,8 @@ And here is a picture of the same thing:
    :align: center
 
 
-Setting up Raspberry Pi
------------------------
+Install codebug_i2c_tether on a Raspberry Pi
+============================================
 First, make sure you have enabled I2C by running::
 
     sudo raspi-config
@@ -60,77 +57,40 @@ and then navigating to::
 
 Then reboot.
 
+Install Python
+--------------
+Python should already be installed but for good measure::
 
-Installing with ``apt-get``
----------------------------
-.. note:: ``apt-get`` installation is not ready yet.
+    sudo apt-get install python3
 
-Make sure you are using the lastest version of Raspbian::
+To install pip, securely download `get-pip.py <https://bootstrap.pypa.io/get-pip.py>`_.
 
-    $ sudo apt-get update && sudo apt-get upgrade
+Then run the following::
 
-Install ``codebug_i2c_tether`` for Python 3 with the following command::
-
-    $ sudo apt-get install python3-codebug-i2c-tether
-
-
-Installing with ``pip``
------------------------
-.. warning:: Do not install ``codebug_i2c_tether`` with both ``apt-get``
-             and ``pip`` as unexpected things will happen. Consider using
-             virtual environments.
-
-Make sure ``pip`` is installed::
-
-    sudo apt-get install python3-pip
-
-Install ``codebug_i2c_tether`` using ``pip``::
-
-    sudo pip-3.2 install codebug_i2c_tether
+    sudo python3 get-pip.py
 
 
-Installing with ``pip`` (with Virtual Environments)
----------------------------------------------------
-.. note :: Generally, it's best to install packages into a
-           `virtual environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_
-           when using ``pip`` so that they remain project specific.
+Install codebug_i2c_tether
+--------------------------
+To install codebug_i2c_tether, open up a terminal and type::
 
-Install ``virtualenv``::
+    pip3 install codebug_i2c_tether
 
-    sudo pip-3.2 install virtualenv
+To test it has worked, plug in CodeBug and open a Python shell by typing::
 
-Move into your project and create the virtual environment::
-
-    cd my_project_directory/
-    virtualenv-3.2 venv
-
-Activate the virtual environment::
-
-    source venv/bin/activate
-
-You should notice that your command prompt has changed. ``pip`` will now
-install all packages into the virtual environment instead of littering
-your system files::
-
-    pip install codebug_i2c_tether
-
-Now you can work on your application with ``codebug_i2c_tether``. Once
-you're done, deactivate the virtual environment::
-
-    deactivate
-
-You will not be able to use packages installed in the virtual environment
-until you activate it again (`source venv/bin/activate`).
-
-
-Using ``codebug_i2c_tether`` without installing
------------------------------------------------
-You may want to use ``codebug_i2c_tether`` without installing anything at
-all. You can just download and include the ``codebug_i2c_tether`` package
-in your project and start using it. The quickest way to do this is::
-
-    git clone https://github.com/codebugtools/codebug_i2c_tether.git
-    cp -r codebug_i2c_tether/codebug_i2c_tether myproject/
-    cd myproject/
     python3
+
+Your command prompt should have changed to::
+
+    >>> _
+
+Now type::
+
     >>> import codebug_i2c_tether
+    >>> with codebug_i2c_tether.CodeBug() as codebug:
+    ...     codebug.set_pixel(2, 2, 1)
+    ...
+
+The middle pixel on your CodeBug should light up.
+
+See :ref:`examples-label` for more ways to use codebug_i2c_tether.
